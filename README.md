@@ -92,6 +92,3 @@ At the same time, in `src/images/`, screenshots of 50 games and 12,000+ games of
 
 ## Sponsorship and Contact
 
-Sponsor address: 0x7c7e3d739230CB806e12b713a869aC766141901d
-
-Telegram: [@DeeToTheMoon](https://t.me/DeeToTheMoon)
