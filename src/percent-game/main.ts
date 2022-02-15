@@ -11,17 +11,23 @@ import { log, color } from "../utils/log";
 import BetManager from "./betManager";
 import { getBalance } from "../wallet/wallet";
 
+import {
+  getActiveBetRound,
+  getProcessingRound,
+} from "./getMarketData";
+
+
 const calculateResult = (round: Round) => {
   const cur = round;
   const id = cur.id;
-  // 为正数则为增长
+  // positive for growth
   const isUp = cur.closePrice - cur.lockPrice > 0;
 
   const bull = getMultiplier(cur.totalAmount, cur.bullAmount);
   const bear = getMultiplier(cur.totalAmount, cur.bearAmount);
 
   console.log(
-    `场次${id}结算结果为 ${chalk.red(isUp ? "大" : "小")} 赔率 ${chalk.blue(
+    `The settlement result of the session ${id} is ${chalk.red(isUp ? "Big" : "Small")} odds ${chalk.blue(
       isUp ? bull : bear
     )}`
   );
@@ -46,24 +52,24 @@ const onRoundBetsChang = (round: Round) => {
 
   // if (balanceTime < 10000) {
   console.log(
-    `#${id} 数据变动，总计${round.totalBets}次$${zeroFill(
+    `#${id} Data changes, total${round.totalBets}Second-rate$${zeroFill(
       numberFixed(totalAmount, 3),
       3
     )}`,
-    `| 赔率 大`,
+    `| Odds are big`,
     color(isUpSmall, zeroFill(bullMultiplier, decimalLen)),
     "-",
     color(!isUpSmall, zeroFill(bearMultiplier, decimalLen)),
-    `小`,
+    `small`,
     `| ${calcBalanceTime(round)}s`
   );
   // }
 };
 
 getBalance().then((INITIAL_MONEY) => {
-  // 在这里更改初始金额用于测试
-  INITIAL_MONEY = 1;
-
+  // Change the initial amount here for testing
+  INITIAL_MONEY = 0.001;
+  console.log(`====1====`);
   const betManager = new BetManager({
     initialMoney: INITIAL_MONEY,
     betEvent: async ({ betManager, round, counterparty }) => {
@@ -84,15 +90,15 @@ getBalance().then((INITIAL_MONEY) => {
       if (amount > betManager.currentBalance) {
         amount = betManager.currentBalance;
       }
-
-      // 仅仅保留8位尾数
+      console.log(`====2====`);
+      // Only keep 8 bits of mantissa
       amount = numberFixed(amount, 8);
 
-      // 真实投注行为！会使用钱包中的钱
+      // Real betting behavior! will use the money in the wallet
       // ⚠️ This will use the balance in your wallet!
 
-      // await betSmall({ round, amount });
-
+       betSmall({ round, amount });
+      console.log(`====3====`);
       return {
         amount,
         id: round.id,
@@ -101,6 +107,9 @@ getBalance().then((INITIAL_MONEY) => {
     },
   });
 
+  console.log(`====4====`);
+  // console.log(JSON.stringify(betManager.));
+  // console.log(JSON.stringify(betManager.betEvent()));
   new MarketDataMonitor({
     nearsAnEndTime: 3000,
     onRoundChange: onRoundBetsChang,
@@ -109,27 +118,28 @@ getBalance().then((INITIAL_MONEY) => {
       if (!endRound) {
         return;
       }
+      console.log(`====3====`);
       console.log(
-        `========游戏结束，${endRound ? endRound.id : "NaN"}已停止结算, ${
+        `========game over,${endRound ? endRound.id : "NaN"}Billing stopped, ${
           processRound ? processRound.id : "NaN"
-        }开始计算========`
+        }start calculating========`
       );
 
       if (endRound) {
         betManager.roundEndEvent(endRound);
         if (betManager.betHistory[endRound.id]) {
           log(
-            `投注结算 场次 ${endRound.id} , 投注额 ${
+            `betting settlement ${endRound.id} , bet amount ${
               betManager.betHistory[endRound.id]
                 ? betManager.betHistory[endRound.id].amount
-                : "无"
-            }, 当前金额: ${betManager.currentBalance}`
+                : "none"
+            }, current amount: ${betManager.currentBalance}`
           );
         }
       }
 
       calculateResult(endRound);
-
+      console.log(`====5====`);
       getUnCollectHistory().then((res) => {
         if (res.length > 0) {
           for (let i = 0; i < res.length; i++) {
@@ -137,11 +147,11 @@ getBalance().then((INITIAL_MONEY) => {
 
             collect(Number(cur.round.id))
               .then(() => {
-                // 如果有赢就回收
-                console.log("🤩🤩🤩🤩🤩🤩🤩成功回收！");
+                // Recycle if you win
+                console.log("🤩🤩🤩🤩🤩🤩🤩 Recycled successfully!");
               })
               .catch(() => {
-                console.error("😥失败回收!");
+                console.error("😥 Failed to recycle");
               });
           }
         }
@@ -152,10 +162,12 @@ getBalance().then((INITIAL_MONEY) => {
       betManager.betEvent(round).then((res) => {
         if (res) {
           const { id, amount, position } = res;
-          log(`投注 ${id} , 投注额 ${amount}, ${position}`);
+          log(`bet ${id} , bet amount ${amount}, ${position}`);
         }
       });
       return true;
     },
   });
 });
+// getActiveBetRound().then((round) => console.log("Currently available for betting", round));
+collect(10087);

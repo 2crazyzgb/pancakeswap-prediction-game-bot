@@ -50,7 +50,7 @@ export function graphRequest<T = any, V = Variables>(
       return res.data.data;
     })
     .catch(async (err) => {
-      console.log("请求异常 ", url);
+      console.log("request exception ", url);
       await sleep(2000);
       // 异常尝试重新请求
       return graphRequest(url, document, variables);

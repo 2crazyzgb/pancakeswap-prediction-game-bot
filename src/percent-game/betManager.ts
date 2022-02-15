@@ -16,7 +16,7 @@ interface BetResult extends BetHistory {
 
 interface BetEventParams {
   round: Round;
-  counterparty: BetResult | null; // 对手
+  counterparty: BetResult | null; // opponent
   betManager: BetManager;
 }
 

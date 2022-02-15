@@ -7,10 +7,10 @@ export const hexToNumber = (
   unitLength = 18
 ): string => {
   if (!_isBigNumber) {
-    throw new Error(`_isBigNumber与预期不一致`);
+    throw new Error(`_isBigNumbernot as expected`);
   }
   if (isHex(_hex)) {
-    throw new Error("_hex与预期不一致：" + _hex);
+    throw new Error("_hexnot as expected：" + _hex);
   }
   return utils.formatUnits(_hex, unitLength);
   // return new BigNumber(_hex).toNumber();

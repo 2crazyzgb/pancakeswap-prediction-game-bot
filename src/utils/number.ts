@@ -1,13 +1,13 @@
 type NumberTransformParams = string | number;
 
 /**
- * 数字格式化
- * 支持字符串转数字，以及修复浮点数精度缺失的问题
+ * number formatting
+ * Support string conversion to numbers, and fix the problem of missing floating point precision
  * @param data
  * @param length
  */
 export function numberFixed(data: NumberTransformParams, length = 2): number {
-  // 如果是字符串需要过滤掉千分位逗号
+  // If it is a string, you need to filter out the thousandth comma
   const num = Number(typeof data === "string" ? data.replace(/,/g, "") : data);
   let times = 1;
   for (let i = 0; i < length; i++) {
@@ -17,12 +17,12 @@ export function numberFixed(data: NumberTransformParams, length = 2): number {
 }
 
 /**
- * 补零，不支持负数（负数会自动转为正数）
+ * Zero padding, negative numbers are not supported (negative numbers will be automatically converted to positive numbers)
  */
 export function zeroFill(number: NumberTransformParams, length = 2): string {
   const numArr = number.toString().split(".");
   let decimal = numArr[1] || "";
-  // 长度不足时，自动补0
+  // When the length is insufficient, it will be automatically filled with 0
   while (decimal.length < length) {
     decimal += "0";
   }

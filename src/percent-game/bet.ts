@@ -21,14 +21,14 @@ export const bet = async ({
   position,
   amount,
 }: {
-  position: BetType; // 投注方向
-  amount: number; // 投注额
+  position: BetType; // betting direction
+  amount: number; // bet amount
 }): Promise<BetResponseType> => {
   const [gasPrice, gasLimit] = await Promise.all([
     getReasonablePrice(),
     getReasonableLimit(),
   ]);
-  console.log("🧐 投注", { position, amount, gasPrice });
+  console.log("🧐 bet", { position, amount, gasPrice });
   return contractWithSigner[position]({
     value: utils.parseUnits(amount.toString(), 18),
     gasPrice: utils.parseUnits(gasPrice.toFixed(12).replace(/0+$/, ""), 18),
@@ -36,9 +36,9 @@ export const bet = async ({
   })
     .then((tx: any) => {
       console.log(
-        "😳 尝试投注，链地址",
+        "😳 try betting, chain address",
         getBSCScan(tx.hash),
-        `投注金额 ${amount}`,
+        `bet amount ${amount}`,
         `GAS FEE ${numberFixed(gasPrice * gasLimit, 4)}`
       );
       return tx
@@ -50,7 +50,7 @@ export const bet = async ({
           };
         })
         .catch((err: any) => {
-          console.error("🥵 投注失败，打包！", err);
+          console.error("🥵 Bets lost, pack!", err);
           return {
             code: BetResponseCode.FAILED,
             hash: tx.hash,
@@ -58,7 +58,7 @@ export const bet = async ({
         });
     })
     .catch((err: any) => {
-      console.error("🥵 投注失败", err);
+      console.error("🥵 bet lost", err);
       return {
         code: BetResponseCode.FAILED,
       };

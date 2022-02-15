@@ -14,7 +14,7 @@ export const getBalance = () =>
     )
     .catch((err) => {
       console.error(err);
-      throw new Error("钱包连接失败" + err.message);
+      throw new Error("Wallet connection failed" + err.message);
     });
 
-getBalance().then((money) => console.log("钱包连接成功，当前余额", money));
+getBalance().then((money) => console.log("The wallet connection is successful, the current balance", money));

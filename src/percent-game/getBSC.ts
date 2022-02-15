@@ -23,7 +23,7 @@ const RequestConfig: AxiosRequestConfig = {
   headers: {
     // ":authority": "bscscan.com",
     // ":method": "GET",
-    // ":path": "/txsPending?a=0x516ffd7d1e0ca40b1879935b2de87cb20fc1124b",
+    // ":path": "/txsPending?a=0x813ae7f8d46894A8866F7358DbaDc184f4400428",
     // ":scheme": "https",
     // accept:
     //   "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
@@ -194,14 +194,14 @@ const requestTransitionDetail = (
   return get<string>(`https://bscscan.com/tx/${txn}`, RequestConfig).then(
     async (data) => {
       if (!data) {
-        console.error("数据详情请求失败");
+        console.error("Data details request failed");
         await sleep(RETRY_DELAY);
         return requestTransitionDetail(txn, value);
       }
       try {
         return getTransactionDetail(data, txn, value);
       } catch (e) {
-        console.error("匹配详情数据失败!");
+        console.error("Failed to match detail data!");
         await sleep(RETRY_DELAY);
         return requestTransitionDetail(txn, value);
       }
@@ -215,7 +215,7 @@ const requestBSCTableList = (
 ): Promise<TransactionType[]> => {
   return get<string>(url, RequestConfig).then(async (data) => {
     if (!data) {
-      console.error(url + "数据请求失败，尝试重新获取!");
+      console.error(url + "Data request failed, try to get it again!");
       await sleep(RETRY_DELAY);
       return requestBSCTableList(url, dataHandler);
     }
@@ -226,7 +226,7 @@ const requestBSCTableList = (
         return !cacheStore[item.txn];
       });
     } catch (e) {
-      console.log(url + "列表数据获取失败");
+      console.log(url + "Failed to get list data");
       log(data);
       await sleep(RETRY_DELAY);
       return requestBSCTableList(url, dataHandler);
@@ -260,14 +260,14 @@ const requestBSCTableList = (
 
 export const getBSCCompleted = (): Promise<TransactionType[]> => {
   return requestBSCTableList(
-    "https://bscscan.com/txs?a=0x516ffd7d1e0ca40b1879935b2de87cb20fc1124b",
+    "https://bscscan.com/txs?a=0x813ae7f8d46894A8866F7358DbaDc184f4400428",
     getCompletedTransactions
   );
 };
 
 export const getBSCPending = (): Promise<TransactionType[]> => {
   return requestBSCTableList(
-    "https://bscscan.com/txsPending?a=0x516ffd7d1e0ca40b1879935b2de87cb20fc1124b",
+    "https://bscscan.com/txsPending?a=0x813ae7f8d46894A8866F7358DbaDc184f4400428",
     getPendingTransaction
   );
 };
@@ -281,7 +281,7 @@ export const getBSCPending = (): Promise<TransactionType[]> => {
 //     mergeMap((_) =>
 //       from(
 //         get<string>(
-//           "https://bscscan.com/txs?a=0x516ffd7d1e0ca40b1879935b2de87cb20fc1124b",
+//           "https://bscscan.com/txs?a=0x813ae7f8d46894A8866F7358DbaDc184f4400428",
 //           RequestConfig
 //         ).then((data) => getCompletedTransactions(data))
 //       ).pipe(
@@ -325,12 +325,12 @@ export const bscObservable = (
     type === "completed"
       ? createPollingListObservable(
           time,
-          "https://bscscan.com/txs?a=0x516ffd7d1e0ca40b1879935b2de87cb20fc1124b",
+          "https://bscscan.com/txs?a=0x813ae7f8d46894A8866F7358DbaDc184f4400428",
           getCompletedTransactions
         )
       : createPollingListObservable(
           time,
-          "https://bscscan.com/txsPending?a=0x516ffd7d1e0ca40b1879935b2de87cb20fc1124b",
+          "https://bscscan.com/txsPending?a=0x813ae7f8d46894A8866F7358DbaDc184f4400428",
           getPendingTransaction,
           true
         );
@@ -338,7 +338,7 @@ export const bscObservable = (
   return polling$.pipe(
     tap((data) => {
       type === "pending" &&
-        console.log(new Date().toLocaleString(), "获取数据", data.txn);
+        console.log(new Date().toLocaleString(), "retrieve data", data.txn);
     }),
     mergeMap((data) => from(requestTransitionDetail(data.txn, data.value)))
     // tap((data) =>

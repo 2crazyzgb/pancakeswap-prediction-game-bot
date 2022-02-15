@@ -80,7 +80,7 @@ export const getProxy = async (): Promise<ProxyType[]> => {
         res.status == 200 &&
         (res.data.code === 200 || res.data.errno === 200)
       ) {
-        console.log("获取IP列表", res.data.data);
+        console.log("Get IP list", res.data.data);
         const data: ProxyType[] = res.data.data.map((item) => ({
           endTime: Date.now() + item.timeout, // 剩余时间
           port: item.port, // 端口

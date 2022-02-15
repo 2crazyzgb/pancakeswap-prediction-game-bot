@@ -3,7 +3,7 @@ import { wallet } from "../wallet/wallet";
 import { Contract } from "ethers";
 
 export const contractWithSigner = new Contract(
-  "0x516ffd7D1e0Ca40b1879935B2De87cb20Fc1124b",
+  "0x813ae7f8d46894A8866F7358DbaDc184f4400428",
   predictionsAbi,
   wallet
 );

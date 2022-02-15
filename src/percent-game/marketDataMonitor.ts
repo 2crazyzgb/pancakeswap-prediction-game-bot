@@ -36,18 +36,18 @@ type OnNearsAnEnd = (round: Round) => boolean;
 const getNowSeconds = () => Math.round(Date.now() / 1000);
 
 export class MarketDataMonitor {
-  // 当前对局
+  // current match
   currentRound: Round = null;
-  // 上次对局
+  // last match
   lastRound: Round = null;
-  // 轮询间隔周期
+  // polling interval period
   pollingTime = 500;
 
   _onRoundChange: OnRoundChange;
   _onRoundEnd: OnRoundEnd;
   _onNearsAnEnd: OnNearsAnEnd;
   public nearsAnEndTime: number;
-  // 对局记录
+  // game record
   private rounds: { [id: string]: Round } = {};
   private nearsAnEndAlarmMap: { [key: string]: boolean } = {};
 
@@ -66,17 +66,17 @@ export class MarketDataMonitor {
     this._onRoundEnd = onRoundEnd;
     this._onNearsAnEnd = onNearsAnEnd;
     this.nearsAnEndTime = nearsAnEndTime;
-    // 以下三种只能选一个
-    // 自建监听器( 推荐 )
+    // Only one of the following three can be selected
+    // Build your own listener (recommended)
     this.addBlockChainEvent();
-    // 轮询BSC
+    // poll BSC
     // this.pollingBSC();
-    // 轮询GRT
+    // poll GRT
     // this.pollingGRT();
   }
 
   /**
-   * 投注对局数据变化回调
+   * Betting match data change callback
    * @param curRound
    */
   dataChangeCallback(curRound: Round) {
@@ -88,8 +88,8 @@ export class MarketDataMonitor {
     //   this.lastRound = curRound;
     // }
 
-    // 游戏场次发生变化
-    // 说明上一场次游戏已经结束
+    // game session changes
+    // Indicate that the previous game has ended
     if (this.currentRound.id !== curRound.id) {
       this.lastRound = this.currentRound;
       this.currentRound = curRound;
@@ -130,7 +130,7 @@ export class MarketDataMonitor {
     // console.log("投注变更", id, num, detail.transactionHash, detail.blockHash);
     if (!cur) {
       // 暂未记录起始记录
-      console.log("未匹配到本地记录", id);
+      console.log("No local record matched", id);
       return;
     }
 
@@ -170,7 +170,7 @@ export class MarketDataMonitor {
     detail
   ) => {
     const id = getIDFromHex(roundId);
-    console.log(new Date().toISOString(), "游戏开始", id);
+    console.log(new Date().toISOString(), "Games start", id);
     const round: Round = {
       bearBets: 0,
       bearAmount: 0,
@@ -195,8 +195,7 @@ export class MarketDataMonitor {
     this.dataChangeCallback(round);
     this.getGRTDateTime(round).then((res) => {
       console.log(
-        `本地记录时间 ${round.startAt} 与GRT时间 ${res.round.startAt}，偏差值${
-          round.startAt - res.round.startAt
+        `local record time ${round.startAt} with GRT time ${res.round.startAt},Deviation${round.startAt - res.round.startAt
         }s`
       );
       // 修正时间
@@ -221,7 +220,7 @@ export class MarketDataMonitor {
     const id = getIDFromHex(roundId);
     const block = getIDFromHex(blockNumber);
     const price = getPriceFromHex(lockPrice);
-    console.log(new Date().toISOString(), "游戏锁定", id, "锁定", price);
+    console.log(new Date().toISOString(), "game lock", id, "locking", price);
 
     const cur = this.rounds[id];
     if (cur) {
@@ -246,11 +245,11 @@ export class MarketDataMonitor {
     const cur = this.rounds[id];
     console.log(
       new Date().toISOString(),
-      "游戏结束",
+      "game over",
       id,
-      "结束价格",
+      "end price",
       price,
-      cur ? `锁定价格${cur.lockPrice}` : ""
+      cur ? `lock in price${cur.lockPrice}` : ""
     );
 
     if (cur) {

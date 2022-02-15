@@ -74,5 +74,5 @@ export const getUnCollectHistory = () =>
     },
     20
   ).then(
-    (data) => data.filter((item) => item.position === item.round.position) // 查询结果存在问题，需要过滤一次
+    (data) => data.filter((item) => item.position === item.round.position) // There is a problem with the query result, you need to filter it once
   );
