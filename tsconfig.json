@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
+    "baseUrl": "./src",
     "module": "commonjs",
     "moduleResolution": "node",
     "target": "es2015",
@@ -10,9 +10,15 @@
     "strictNullChecks": false,
     "importsNotUsedAsValues": "error",
     "strict": true,
-    "types": ["node"],
-    "lib": ["es6"],
-    "outDir": "out",
+    "outDir": "./build",
+    "types": [
+      "node"
+    ],
+    "lib": [
+      "es6"
+    ],
   },
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }

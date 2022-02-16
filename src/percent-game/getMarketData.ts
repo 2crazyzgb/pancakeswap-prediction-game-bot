@@ -107,6 +107,7 @@ export const transformRoundResponse = (roundResponse: RoundResponse): Round => {
     bullAmount: numberOrNull(bullAmount),
     position: getRoundPosition(position),
     bets: bets.map(transformBetResponse),
+
   };
 };
 
@@ -142,7 +143,7 @@ export const getMarketData = async (
 };
 
 /**
- * 获取当前可投注对局
+ * Get current playable games
  */
 export const getActiveBetRound = () =>
   getMarketData(1).then((res) => ({
@@ -151,7 +152,7 @@ export const getActiveBetRound = () =>
   }));
 
 /**
- * 获取当前进行中对局
+ * Get the current match in progress
  */
 export const getProcessingRound = () =>
   getMarketData(2).then((res) => res.rounds[1]);

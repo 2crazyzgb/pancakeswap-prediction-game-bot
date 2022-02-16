@@ -10,8 +10,6 @@ export const getRoundBaseFields = () => `
   lockAt
   lockBlock
   lockPrice
-  endAt
-  endBlock
   closePrice
   totalBets
   totalAmount

@@ -23,6 +23,14 @@ import {
   TransactionType,
 } from "./getBSC";
 
+export const numberOrNull = (value: string) => {
+  if (value === null) {
+    return null;
+  }
+
+  const valueNum = Number(value);
+  return Number.isNaN(valueNum) ? null : valueNum;
+};
 const { parseUnits, formatUnits } = utils;
 
 type OnRoundChange = (round: Round) => any;
@@ -98,13 +106,13 @@ export class MarketDataMonitor {
     // 总投注数发生变化
     // if (curRound.totalBets > this.currentRound.totalBets) {
     //   this.currentRound = curRound;
-    // 通知订阅事件
+    // Notify Subscription Events
     this._onRoundChange(curRound);
     // }
   }
 
   /**
-   * 对局即将结束回调
+   * The match is about to end callback
    */
   // nearsAnEndCallback() {
   //   const round = this.currentRound;
@@ -127,9 +135,9 @@ export class MarketDataMonitor {
     const id = typeof roundId === "string" ? roundId : getIDFromHex(roundId);
     const cur = this.rounds[id];
     const num = typeof value === "number" ? value : getCoinNumberFromHex(value);
-    // console.log("投注变更", id, num, detail.transactionHash, detail.blockHash);
+    // console.log("bet change", id, num, detail.transactionHash, detail.blockHash);
     if (!cur) {
-      // 暂未记录起始记录
+      // No start record yet
       console.log("No local record matched", id);
       return;
     }
@@ -147,7 +155,7 @@ export class MarketDataMonitor {
   };
 
   /**
-   * 获取GRT查询时间
+   * Get GRT query time
    */
   async getGRTDateTime(round: Round): Promise<{
     round: Round;
@@ -162,7 +170,7 @@ export class MarketDataMonitor {
   }
 
   /**
-   * 对局启动，可下注
+   * The game starts, you can bet
    */
   onChainRoundStart: StartRoundListenerType = (
     roundId,
@@ -171,6 +179,7 @@ export class MarketDataMonitor {
   ) => {
     const id = getIDFromHex(roundId);
     console.log(new Date().toISOString(), "Games start", id);
+    console.log(`onChainRoundStart: StartRoundListenerType #1`);
     const round: Round = {
       bearBets: 0,
       bearAmount: 0,
@@ -187,29 +196,36 @@ export class MarketDataMonitor {
       epoch: id,
       failed: false,
       lockAt: null,
-      startBlock: detail.blockNumber,
+      startBlock: null,
       position: BetPosition.HOUSE,
       lockBlock: null,
+      rewardBaseCalAmount: null,
+      rewardAmount: null
     };
     this.rounds[id] = round;
+    console.log(`onChainRoundStart: StartRoundListenerType #2`);
     this.dataChangeCallback(round);
+    console.log(`onChainRoundStart: StartRoundListenerType #3`);
     this.getGRTDateTime(round).then((res) => {
       console.log(
         `local record time ${round.startAt} with GRT time ${res.round.startAt},Deviation${round.startAt - res.round.startAt
         }s`
       );
-      // 修正时间
+      console.log(`onChainRoundStart: StartRoundListenerType 3.1`);
+      console.log((round.startAt + 5 * 60) * 1000 - Date.now() - this.nearsAnEndTime);
+      // Correction time
       round.startAt = res.round.startAt;
-      // 快结束时触发一次回调
+      // Trigger a callback when the end is near
       accurateSetTimeout(
         () => this._onNearsAnEnd(round),
         (round.startAt + 5 * 60) * 1000 - Date.now() - this.nearsAnEndTime
       );
     });
+    console.log(`onChainRoundStart: StartRoundListenerType #4`);
   };
 
   /**
-   * 对局锁定，禁止下注
+   * Game locked, no betting allowed
    */
   onChainRoundLock: LockRoundListenerType = (
     roundId,
@@ -231,7 +247,7 @@ export class MarketDataMonitor {
   };
 
   /**
-   * 对局结束，看结果
+   * The game is over, see the results
    */
   onChainRoundEnd: CloseRoundListenerType = (
     roundId,
@@ -257,8 +273,8 @@ export class MarketDataMonitor {
       cur.closePrice = price;
     }
 
-    // 先回传上一次场次记录
-    // 同时将此刻场次记录作为下一次场次回传
+    // first return the last session record
+    // At the same time, the current session record will be returned as the next session
     this._onRoundEnd(cur || null, this.rounds[id + 1] || null);
   };
 
@@ -328,8 +344,8 @@ export class MarketDataMonitor {
       this.dataChangeCallback(round);
       this.pollingTime = this.setPollingTime(market);
     });
-    // 轮询器的间隔
-    // 加速并发请求数量，所以不需要等上次结束
+    // poller interval
+    // Speed up the number of concurrent requests, so you don't need to wait for the last time to end
     await sleep(this.pollingTime);
     return this.pollingGRT();
   }

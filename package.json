@@ -20,6 +20,7 @@
     "cheerio": "^1.0.0-rc.10",
     "dayjs": "^1.10.5",
     "ethers": "^5.3.1",
+    "evm-bn": "^1.1.1",
     "graphql": "^15.5.0",
     "graphql-request": "^3.4.0",
     "rxjs": "^7.1.0",

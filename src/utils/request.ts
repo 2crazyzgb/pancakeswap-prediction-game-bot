@@ -18,7 +18,7 @@ export function get<T>(
 ): Promise<T | null> {
   return axios
     .get(url, {
-      proxy: localConfig.proxy,
+      // proxy: localConfig.proxy,
       headers: getRandomHeaders(),
       ...(config || {}),
     })
@@ -39,7 +39,7 @@ export function graphRequest<T = any, V = Variables>(
   return axios({
     method: "post",
     url,
-    proxy: localConfig.proxy,
+    // proxy: localConfig.proxy,
     headers: getRandomHeaders(),
     data: {
       query: document,
@@ -51,8 +51,11 @@ export function graphRequest<T = any, V = Variables>(
     })
     .catch(async (err) => {
       console.log("request exception ", url);
+      console.log("request document ", document);
+      console.log("request document ", variables);
+      // console.log("request exception err", err);
       await sleep(2000);
-      // 异常尝试重新请求
+      // Exception trying to re-request
       return graphRequest(url, document, variables);
     });
 }

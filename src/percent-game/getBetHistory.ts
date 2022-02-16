@@ -37,6 +37,7 @@ export const getBetHistory = async (
       `,
     { first, skip, where }
   );
+  console.log(`====4====`);
   return response.bets;
 };
 

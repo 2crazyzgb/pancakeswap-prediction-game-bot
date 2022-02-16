@@ -23,7 +23,7 @@ const RequestConfig: AxiosRequestConfig = {
   headers: {
     // ":authority": "bscscan.com",
     // ":method": "GET",
-    // ":path": "/txsPending?a=0x813ae7f8d46894A8866F7358DbaDc184f4400428",
+    // ":path": "/txsPending?a=0x18B2A687610328590Bc8F2e5fEdDe3b582A49cdA",
     // ":scheme": "https",
     // accept:
     //   "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
@@ -202,6 +202,8 @@ const requestTransitionDetail = (
         return getTransactionDetail(data, txn, value);
       } catch (e) {
         console.error("Failed to match detail data!");
+        console.error(txn);
+        console.error(value);
         await sleep(RETRY_DELAY);
         return requestTransitionDetail(txn, value);
       }
@@ -260,14 +262,14 @@ const requestBSCTableList = (
 
 export const getBSCCompleted = (): Promise<TransactionType[]> => {
   return requestBSCTableList(
-    "https://bscscan.com/txs?a=0x813ae7f8d46894A8866F7358DbaDc184f4400428",
+    "https://bscscan.com/txs?a=0x18B2A687610328590Bc8F2e5fEdDe3b582A49cdA",
     getCompletedTransactions
   );
 };
 
 export const getBSCPending = (): Promise<TransactionType[]> => {
   return requestBSCTableList(
-    "https://bscscan.com/txsPending?a=0x813ae7f8d46894A8866F7358DbaDc184f4400428",
+    "https://bscscan.com/txsPending?a=0x18B2A687610328590Bc8F2e5fEdDe3b582A49cdA",
     getPendingTransaction
   );
 };
@@ -281,7 +283,7 @@ export const getBSCPending = (): Promise<TransactionType[]> => {
 //     mergeMap((_) =>
 //       from(
 //         get<string>(
-//           "https://bscscan.com/txs?a=0x813ae7f8d46894A8866F7358DbaDc184f4400428",
+//           "https://bscscan.com/txs?a=0x18B2A687610328590Bc8F2e5fEdDe3b582A49cdA",
 //           RequestConfig
 //         ).then((data) => getCompletedTransactions(data))
 //       ).pipe(
@@ -325,12 +327,12 @@ export const bscObservable = (
     type === "completed"
       ? createPollingListObservable(
           time,
-          "https://bscscan.com/txs?a=0x813ae7f8d46894A8866F7358DbaDc184f4400428",
+          "https://bscscan.com/txs?a=0x18B2A687610328590Bc8F2e5fEdDe3b582A49cdA",
           getCompletedTransactions
         )
       : createPollingListObservable(
           time,
-          "https://bscscan.com/txsPending?a=0x813ae7f8d46894A8866F7358DbaDc184f4400428",
+          "https://bscscan.com/txsPending?a=0x18B2A687610328590Bc8F2e5fEdDe3b582A49cdA",
           getPendingTransaction,
           true
         );

@@ -72,8 +72,6 @@ export const getRoundBaseFields = () => `
   lockAt
   lockBlock
   lockPrice
-  endAt
-  endBlock
   closePrice
   totalBets
   totalAmount
@@ -86,7 +84,7 @@ export const getRoundBaseFields = () => `
 
 export const getBetBaseFields = () => `
   id
-  hash  
+  hash
   amount
   position
   claimed
@@ -95,7 +93,6 @@ export const getBetBaseFields = () => `
 
 export const getUserBaseFields = () => `
   id
-  address
   block
   totalBets
   totalBNB

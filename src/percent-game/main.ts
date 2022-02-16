@@ -1,5 +1,5 @@
 import { MarketDataMonitor } from "./marketDataMonitor";
-import { betSmall } from "./bet";
+import { betSmall, betBig, betStandard } from "./bet";
 import { getUnCollectHistory } from "./getBetHistory";
 import { collect } from "./collect";
 import { getMultiplier } from "../utils/getMultiplier";
@@ -10,6 +10,11 @@ import * as chalk from "chalk";
 import { log, color } from "../utils/log";
 import BetManager from "./betManager";
 import { getBalance } from "../wallet/wallet";
+import { isBearBet } from "./lib";
+import { BigNumber } from "@ethersproject/bignumber";
+import { toBn } from "evm-bn";
+import config from "../config/config";
+import { BetType } from "../types/bet";
 
 import {
   getActiveBetRound,
@@ -52,7 +57,7 @@ const onRoundBetsChang = (round: Round) => {
 
   // if (balanceTime < 10000) {
   console.log(
-    `#${id} Data changes, total${round.totalBets}Second-rate$${zeroFill(
+    `#${id} Data changes, total ${round.totalBets} Second-rate $${zeroFill(
       numberFixed(totalAmount, 3),
       3
     )}`,
@@ -68,7 +73,7 @@ const onRoundBetsChang = (round: Round) => {
 
 getBalance().then((INITIAL_MONEY) => {
   // Change the initial amount here for testing
-  INITIAL_MONEY = 0.001;
+  INITIAL_MONEY = config.totalAmount;
   console.log(`====1====`);
   const betManager = new BetManager({
     initialMoney: INITIAL_MONEY,
@@ -94,34 +99,55 @@ getBalance().then((INITIAL_MONEY) => {
       // Only keep 8 bits of mantissa
       amount = numberFixed(amount, 8);
 
+      console.log(amount);
+      console.log(`====3.1====`);
       // Real betting behavior! will use the money in the wallet
       // ⚠️ This will use the balance in your wallet!
+      if (config.strategie === "small") {
+        betSmall({ round, amount });
+      } else if (config.strategie === "big") {
+        betBig({ round, amount });
+      } else {
+        enum STRATEGIES {
+          Standard = "Standard",
+          Experimental = "Experimental",
+        }
+        const bearBet = isBearBet(toBn(round.bullAmount.toString()), toBn(round.bearAmount.toString()), STRATEGIES.Standard);
+        round.newPosition = BetType.BULL;
+        if (bearBet) {
+          console.log(color(true, "\nBetting on Bear Bet."));
+          round.newPosition = BetType.BEAR;
+        } else {
+          console.log(color(true, "\nBetting on Bull Bet."));
+        }
+        betStandard({ round, amount})
+      }
 
-       betSmall({ round, amount });
-      console.log(`====3====`);
+      console.log(`====Amount==== ${amount}`);
+      console.log(`====3.1====`);
+
       return {
         amount,
         id: round.id,
-        position: betManager.getSmallPosition(round),
+        position: config.strategie === "small" ? betManager.getSmallPosition(round) : betManager.getBigPosition(round),
       };
     },
   });
 
   console.log(`====4====`);
-  // console.log(JSON.stringify(betManager.));
-  // console.log(JSON.stringify(betManager.betEvent()));
   new MarketDataMonitor({
     nearsAnEndTime: 3000,
     onRoundChange: onRoundBetsChang,
 
     onRoundEnd: (endRound, processRound) => {
       if (!endRound) {
+        console.log(`====5.1==== onRoundEnd`);
+        console.log(endRound);
         return;
       }
-      console.log(`====3====`);
+      console.log(`====5====`);
       console.log(
-        `========game over,${endRound ? endRound.id : "NaN"}Billing stopped, ${
-          processRound ? processRound.id : "NaN"
+        `========game over, ${endRound ? endRound.id : "NaN"} Billing stopped, ${processRound ? processRound.id : "NaN"
         }start calculating========`
       );
 
@@ -129,17 +155,16 @@ getBalance().then((INITIAL_MONEY) => {
         betManager.roundEndEvent(endRound);
         if (betManager.betHistory[endRound.id]) {
           log(
-            `betting settlement ${endRound.id} , bet amount ${
-              betManager.betHistory[endRound.id]
-                ? betManager.betHistory[endRound.id].amount
-                : "none"
+            `betting settlement ${endRound.id} , bet amount ${betManager.betHistory[endRound.id]
+              ? betManager.betHistory[endRound.id].amount
+              : "none"
             }, current amount: ${betManager.currentBalance}`
           );
         }
       }
 
       calculateResult(endRound);
-      console.log(`====5====`);
+      console.log(`====6====`);
       getUnCollectHistory().then((res) => {
         if (res.length > 0) {
           for (let i = 0; i < res.length; i++) {
@@ -169,5 +194,7 @@ getBalance().then((INITIAL_MONEY) => {
     },
   });
 });
+getActiveBetRound().then((round) => console.log("Currently available for betting", round));
+getProcessingRound().then((round) => console.log("currently in progress", round));
 // getActiveBetRound().then((round) => console.log("Currently available for betting", round));
-collect(10087);
+// collect(10087);

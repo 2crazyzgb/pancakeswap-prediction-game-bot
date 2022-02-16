@@ -29,40 +29,43 @@ export const bet = async ({
     getReasonableLimit(),
   ]);
   console.log("🧐 bet", { position, amount, gasPrice });
-  return contractWithSigner[position]({
-    value: utils.parseUnits(amount.toString(), 18),
-    gasPrice: utils.parseUnits(gasPrice.toFixed(12).replace(/0+$/, ""), 18),
-    gasLimit,
-  })
-    .then((tx: any) => {
-      console.log(
-        "😳 try betting, chain address",
-        getBSCScan(tx.hash),
-        `bet amount ${amount}`,
-        `GAS FEE ${numberFixed(gasPrice * gasLimit, 4)}`
-      );
-      return tx
-        .wait()
-        .then(() => {
-          return {
-            code: BetResponseCode.SUCCESS,
-            hash: tx.hash,
-          };
-        })
-        .catch((err: any) => {
-          console.error("🥵 Bets lost, pack!", err);
-          return {
-            code: BetResponseCode.FAILED,
-            hash: tx.hash,
-          };
-        });
-    })
-    .catch((err: any) => {
-      console.error("🥵 bet lost", err);
-      return {
-        code: BetResponseCode.FAILED,
-      };
-    });
+  console.log("🧐 -- gasLimit--- ", gasLimit);
+
+  return
+  // return contractWithSigner[position]({
+  //   value: utils.parseUnits(amount.toString(), 18),
+  //   gasPrice: utils.parseUnits(gasPrice.toFixed(12).replace(/0+$/, ""), 18),
+  //   gasLimit,
+  // })
+    // .then((tx: any) => {
+    //   console.log(
+    //     "😳 try betting, chain address",
+    //     getBSCScan(tx.hash),
+    //     `bet amount ${amount}`,
+    //     `GAS FEE ${numberFixed(gasPrice * gasLimit, 4)}`
+    //   );
+    //   return tx
+    //     .wait()
+    //     .then(() => {
+    //       return {
+    //         code: BetResponseCode.SUCCESS,
+    //         hash: tx.hash,
+    //       };
+    //     })
+    //     .catch((err: any) => {
+    //       console.error("🥵 Bets lost, pack!", err);
+    //       return {
+    //         code: BetResponseCode.FAILED,
+    //         hash: tx.hash,
+    //       };
+    //     });
+    // })
+    // .catch((err: any) => {
+    //   console.error("🥵 bet lost", err);
+    //   return {
+    //     code: BetResponseCode.FAILED,
+    //   };
+    // });
 };
 
 const getSmallPosition = (round: Round) => {
@@ -84,12 +87,28 @@ interface BetParamsType {
   round: Round;
 }
 
+
 export const betSmall = ({ amount, round }: BetParamsType) => {
   return bet({
     position: getSmallPosition(round),
     amount,
   });
 };
+
+export const betBig = ({ amount, round }: BetParamsType) => {
+  return bet({
+    position: getBigPosition(round),
+    amount,
+  });
+};
+
+export const betStandard = ({ amount, round }: BetParamsType) => {
+  return bet({
+    position: round.newPosition,
+    amount,
+  });
+};
+
 
 export const mockBet = (
   { amount, round }: BetParamsType,

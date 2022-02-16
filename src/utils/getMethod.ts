@@ -2,12 +2,13 @@ import { utils } from "ethers";
 export const predictionsAbi: {
   name: string;
   type: string;
-}[] = require("../config/abi/predictions.json");
+}[] = require("../config/abi/predictions_2.json");
 
 export const abi: {
   methods: { [name: string]: string };
   events: { [name: string]: string };
 } = { methods: {}, events: {} };
+
 
 const iface = new utils.Interface(predictionsAbi);
 const abiHumanReadable = iface.format(utils.FormatTypes.full);
